@@ -11,12 +11,12 @@ def semantic_search(
     """Return every chunk at or above min_similarity (no top-k: all hits that pass)."""
 
     # get knowledge base embedding from vector db
-    knowledge_base_embeddings = fetch_from_vector_db()
+    knowledge_base, knowledge_base_embeddings = fetch_from_vector_db()
 
     results = util.cos_sim(question_embedding, knowledge_base_embeddings)[0]
 
     return [
-        (i, float(score), KNOWLEDGE_BASE[i])
+        (i, float(score), knowledge_base[i])
         for i, score in enumerate(results)
         if float(score) >= min_similarity
     ]

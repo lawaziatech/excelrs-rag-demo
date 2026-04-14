@@ -15,7 +15,7 @@ def main():
     knowledge_base_embeddings = convert_to_vectors(knowledge_base)
 
     print("Step 3: save to vector db")
-    save_to_vector_db(knowledge_base_embeddings)
+    save_to_vector_db(knowledge_base, knowledge_base_embeddings)
 
 if __name__ == "__main__":
     main()
