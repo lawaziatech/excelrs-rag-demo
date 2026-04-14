@@ -18,3 +18,11 @@ def save_to_vector_db(knowledge_base, knowledge_base_embeddings):
         documents=knowledge_base,
         embeddings=knowledge_base_embeddings,
     )
+
+def search_vector_db(embeddings):
+    col = client.get_collection(COLLECTION_NAME)
+    results = col.query(
+        query_embeddings=[embeddings],
+        n_results=10,
+    )
+    return results
