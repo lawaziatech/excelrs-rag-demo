@@ -1,27 +1,18 @@
-from sentence_transformers import SentenceTransformer, util
-
-_model = SentenceTransformer("all-MiniLM-L6-v2")
-
-KNOWLEDGE_BASE = [
-    "In a heart attack, people often report chest pain or pressure that may spread to the arm, neck, or jaw.",
-    "Shortness of breath and breathlessness can occur during a heart attack but also with anxiety, asthma, or other lung problems.",
-    "Migraine headaches are typically throbbing, often one-sided, and may include sensitivity to light or sound.",
-    "Type 2 diabetes management often involves diet, exercise, and medications to control blood glucose.",
-    "Hypertension is high blood pressure; it is often called a silent condition because it may have no obvious symptoms.",
-]
-
-
-def convert_to_vectors(texts: list[str]):
-    """Turn a list of strings into embedding vectors (same model for chunks and query)."""
-    return _model.encode(texts, convert_to_numpy=True)
+ 
+from utility import convert_to_vectors
+from vector_db import fetch_from_vector_db
+from sentence_transformers import util
 
 
 def semantic_search(
     question_embedding,
-    knowledge_base_embeddings,
     min_similarity: float = 0.25,
 ) -> list[tuple[int, float, str]]:
     """Return every chunk at or above min_similarity (no top-k: all hits that pass)."""
+
+    # get knowledge base embedding from vector db
+    knowledge_base_embeddings = fetch_from_vector_db()
+
     results = util.cos_sim(question_embedding, knowledge_base_embeddings)[0]
 
     return [
@@ -50,16 +41,12 @@ def make_llm_prompt(question: str, context: str) -> str:
 def main() -> None:
     question = "Why might someone feel breathless during a possible heart attack?"
 
-    print("Step 1: Convert knowledge base into vectors.")
-    knowledge_base_embeddings = convert_to_vectors(KNOWLEDGE_BASE)
-
-    print("Step 2: Convert question into vector.")
-    question_embedding = convert_to_vectors([question])[0]
+    print("Step 1: Convert question into vector.")
+    question_embedding = convert_to_vectors([question])[0]  
 
     print("Step 3: Semantic search to find relevant chunks.")
     chunks = semantic_search(
         question_embedding,
-        knowledge_base_embeddings,
         min_similarity=0.25,
     )
 
