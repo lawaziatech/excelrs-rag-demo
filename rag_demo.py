@@ -1,7 +1,6 @@
  
 from utility import convert_to_vectors
-from vector_db import fetch_from_vector_db
-from sentence_transformers import util
+from vector_db import search_vector_db
 
 
 def semantic_search(
@@ -10,11 +9,7 @@ def semantic_search(
 ) -> list[tuple[int, float, str]]:
     """Return every chunk at or above min_similarity (no top-k: all hits that pass)."""
 
-    # get knowledge base embedding from vector db
-    knowledge_base, knowledge_base_embeddings = fetch_from_vector_db()
-
-    results = util.cos_sim(question_embedding, knowledge_base_embeddings)[0]
-
+    knowledge_base, results = search_vector_db(question_embedding)
     return [
         (i, float(score), knowledge_base[i])
         for i, score in enumerate(results)

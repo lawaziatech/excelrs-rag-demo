@@ -18,3 +18,16 @@ def save_to_vector_db(knowledge_base, knowledge_base_embeddings):
         documents=knowledge_base,
         embeddings=knowledge_base_embeddings,
     )
+
+
+def search_vector_db(query_embedding):
+    col = client.get_collection(COLLECTION_NAME)
+    out = col.query(
+        query_embeddings=[query_embedding.tolist()],
+        n_results=10,
+        include=["documents", "distances"],
+    )
+    knowledge_base = out.get("documents", [[]])[0]
+    distances = out.get("distances", [[]])[0]
+    results = [1.0 - float(distance) for distance in distances]
+    return knowledge_base, results
